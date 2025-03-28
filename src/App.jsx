@@ -35,7 +35,7 @@ Seamless integration of CharacterList and CharacterDetail in the App component.
 
 
 import './App.css'
-import PokemonList from '../components/PokemonAxios.jsx'
+import PokemonList from './components/PokemonAxios'
 
 function App() {
   return (
