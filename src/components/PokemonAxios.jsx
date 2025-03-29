@@ -1,45 +1,85 @@
+// Tasks 1-4
+// Importing Axios, react, bootstrap and App.css
 import React, { useEffect, useState} from 'react';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.css';
+import { Container } from 'react-bootstrap';
+import '../App.css'
 
+// Creating PokemonList arrow function and setting use states
 const PokemonList = () => {
-  const [data, setData] = useState([])
+  const [pokemonData, setPokemonData] = useState([])
+  const [pokemonImage, setPokemonImage] = useState([])
+  const [pokemonDetail, setPokemonDetail] = useState([])
 
 
-  
+// Creating useEffect for api fetch mounting
     useEffect(() => {
-        const fetchData = async () =>{
-            const {data: response} = await axios.get('https://pokeapi.co/api/v2/pokemon');
-            setData(response);
+
+// Setting arrays for api fetch data retrieval
+        const pokemonArray = []
+        const pokemonDetailArray = []
+
+// Creating asyncronous fetch data function with try catch and finally error blocks for error handling
+        const fetchData = async () => {
+          try {
+// Tasks 1-2: Getting Axios data and slicing to show for top 6 pokemon
+            let response = await axios.get('https://pokeapi.co/api/v2/pokemon')
+            let data_results = response.data.results.slice(0,6)
+
+// Setting pokemonData useState
+            setPokemonData(data_results)
+
+// Creating for loops to retrieve images and detail for each pokemon and appending assigned array
+            for (let i=0; i < data_results.length; i ++ ){
+              let response_2 = await axios.get(`https://pokeapi.co/api/v2/pokemon/${data_results[i].name}`)
+              let pokemon2 = data_results[i]
+              pokemon2["image"] = response_2.data.sprites.front_default
+
+              pokemonArray.push(pokemon2["image"])
+            }
+
+            for (let i=0; i < data_results.length; i ++ ){
+              let response_3 = await axios.get(`https://pokeapi.co/api/v2/pokemon/${i+1}`)
+              let data_results_detail = response_3.data.base_experience
+
+
+              pokemonDetailArray.push(data_results_detail)
+            }
+
+            setPokemonImage(pokemonArray)
+            setPokemonDetail(pokemonDetailArray)
+
+          } catch (e) {
+            console.log("Error:", e)
+          } finally{
+            console.log("")
+          }
         }
 
+// Running fetch on page load
         fetchData();
       }, []);
 
-      
 
-      const pokemon1 = {id: 1, pokemonName: data.results[0].name}
-      const pokemon2 = {id: 2, pokemonName: data.results[1].name}
-      const pokemon3 = {id: 3, pokemonName: data.results[2].name}
-      const pokemon4 = {id: 4, pokemonName: data.results[3].name}
-      const pokemon5 = {id: 5, pokemonName: data.results[4].name}
-      const pokemon6 = {id: 6, pokemonName: data.results[5].name}
-
-      const pokemonArray = [pokemon1, pokemon2, pokemon3, pokemon4, pokemon5, pokemon6] 
-
-
-
+// Returning pokemon info in grid format using bootstrap layout methods
       return (
-        <div className="pokemon-list">
-            <h3>Pokemon</h3>
-            <ul>
-              {pokemonArray.map(pokemon => (
-                  <li>
-                    Pokemon ID: {pokemon.id}, Pokemon: {pokemon.pokemonName}
-                  </li>
-                ))}
-            </ul>
-        </div>
+        <Container>
+          <div id="pokemon-data" class="display-flex" className="pokemon-list">
+              <h3 >Pokemon</h3>
+              <ul class="row row-cols-1 row-cols-md-3 g-4 justify-content-around">
+                
+{/* Task 3: Using map function to show each pokemon with onClick event handler to display pokemon detailed information via console */}
+                {pokemonData.map((pokemon, index) => (
+                    <li class="m-4" key={index} onClick={() => console.log(`Base Experience for ${pokemon.name}: ${pokemonDetail[index]}!`) }>
+                      {index + 1}. <img src={pokemonImage[index]} alt="png" />  <br></br>Pokemon: <br></br> {pokemon.name}
+                    </li>
+                  ))}
+              </ul>
+          </div>
+        </Container>
       )
     }
-    
-    export default PokemonList;
+
+// Task4: exporting PokemonList with Pokemon Details to App.jsx 
+export default PokemonList;
